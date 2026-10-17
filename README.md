@@ -39,6 +39,20 @@ The analysis is implemented in `compare_global_indices.py`, and the correspondin
 
 The comparison evaluates differences between model-based selection criteria. It does not establish clinical superiority, predict lung injury, or validate the selected ventilator settings in patients.
 
+## Supplementary sensitivity analysis: Passive expiration and incomplete emptying
+
+An additional within-model sensitivity analysis assessed the impact of finite passive expiration and breath-to-breath volume history on the original 324 primary feasible scenarios. Unlike the reference inspiration-only analysis, this extension carries residual end-expiratory compartment volumes into subsequent breaths and iterates the respiratory cycle to a periodic steady state.
+
+Expiration is modeled as passive exponential emptying into the prescribed external PEEP, with inspiratory and expiratory resistance assumed equal in each compartment. The original inspiratory flow waveforms, numerical time step, energy definitions, and feasibility criteria are retained. Expiratory resistive dissipation is evaluated separately and is not added to inspiratory mechanical power.
+
+At matched settings, model-derived inspiratory MP increased by up to 14.5%. Minimum-MP settings were unchanged across all four mechanical configurations, whereas the balanced settings changed in three. These observations describe sensitivity to the assumed expiratory dynamics; they are not a validation of patient-specific auto-PEEP or lung-protective strategies.
+
+The analysis is implemented in `assess_expiration_sensitivity.py`. Its numerical results are provided in:
+
+- `expiration_primary_scenarios.csv` — original and periodic-state metrics, residual volumes, and diagnostic measures for all 324 scenarios.
+- `expiration_selected_strategies.csv` — original and reselected minimum-MP and balanced strategies.
+- `expiration_summary.csv` — configuration-level summaries of the effects of finite expiration.
+
 ## Repository contents
 
 **Main simulation code**
@@ -60,6 +74,13 @@ The comparison evaluates differences between model-based selection criteria. It 
 - `compare_global_indices.py`
 - `global_indices_minimizer_summary.csv`
 - `global_indices_all_minimizers.csv`
+
+**Passive-expiration sensitivity analysis**
+
+- `assess_expiration_sensitivity.py`
+- `expiration_primary_scenarios.csv`
+- `expiration_selected_strategies.csv`
+- `expiration_summary.csv`
 
 **Documentation and dependencies**
 
@@ -85,6 +106,12 @@ To reproduce the supplementary comparison using the existing primary feasible da
 
 The supplementary script generates the comparison outputs without modifying the original simulation data.
 
+To reproduce the passive-expiration sensitivity analysis using the existing primary feasible dataset:
+
+`python assess_expiration_sensitivity.py --output-dir .`
+
+This extension reads the original model and primary feasible CSV without overwriting them. It also generates a verification JSON file and the editable Supplementary Table S3 (Word); these additional files need not be tracked in the repository.
+
 ## Scope and limitations
 
 The model is intended as a mechanistic, hypothesis-generating framework rather than a patient-specific simulator.
@@ -92,3 +119,5 @@ The model is intended as a mechanistic, hypothesis-generating framework rather t
 Regional energy fractions describe the relative distribution of positive compartmental inspiratory inflow work. They do not directly measure tissue stress, strain, or injurious energy dissipation.
 
 The predefined mechanical configurations are not derived from individual patient data. Consequently, the reported optimization results should not be interpreted as validated clinical recommendations or evidence that a particular strategy reduces ventilator-induced lung injury.
+
+The additional passive-expiration extension remains linear and omits airway closure, expiratory flow limitation, direction-dependent resistance, and separate expiratory-circuit resistance. Its equivalent intrinsic-pressure descriptor is an analytical model quantity rather than a clinical measurement.
