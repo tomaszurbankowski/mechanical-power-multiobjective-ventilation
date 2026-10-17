@@ -53,6 +53,19 @@ The analysis is implemented in `assess_expiration_sensitivity.py`. Its numerical
 - `expiration_selected_strategies.csv` — original and reselected minimum-MP and balanced strategies.
 - `expiration_summary.csv` — configuration-level summaries of the effects of finite expiration.
 
+## Descriptive characterization of the reference primary feasible set
+
+A separate descriptive analysis summarizes the original reference primary feasible dataset of 324 scenarios (81 per mechanical configuration). Unlike the passive-expiration extension, this analysis uses the original inspiration-only simulations with compartmental volumes reset before each breath.
+
+The analysis reports configuration counts, frequencies of retained ventilator settings (including the joint tidal-volume–respiratory-rate combinations), and the minimum, 25th percentile, median, 75th percentile, and maximum of MP, EII, and DCES within each configuration.
+
+The analysis is implemented in `summarize_primary_feasible_scenarios.py`. The numerical summaries are provided in:
+
+- `primary_feasible_setting_counts.csv` — counts and frequencies of retained ventilation settings, with denominators and percentages.
+- `primary_feasible_metric_summary.csv` — distributional summaries of MP, EII, and DCES for each mechanical configuration.
+
+These summaries describe the predefined simulation grid rather than patient frequencies or sampling uncertainty. No new simulations were performed and no strategy selections were changed. The script also generates Supplementary Table S4 in Word format, which is not tracked in this repository.
+
 ## Repository contents
 
 **Main simulation code**
@@ -81,6 +94,12 @@ The analysis is implemented in `assess_expiration_sensitivity.py`. Its numerical
 - `expiration_primary_scenarios.csv`
 - `expiration_selected_strategies.csv`
 - `expiration_summary.csv`
+
+**Descriptive characterization of the primary feasible set**
+
+- `summarize_primary_feasible_scenarios.py`
+- `primary_feasible_setting_counts.csv`
+- `primary_feasible_metric_summary.csv`
 
 **Documentation and dependencies**
 
@@ -111,6 +130,12 @@ To reproduce the passive-expiration sensitivity analysis using the existing prim
 `python assess_expiration_sensitivity.py --output-dir .`
 
 This extension reads the original model and primary feasible CSV without overwriting them. It also generates a verification JSON file and the editable Supplementary Table S3 (Word); these additional files need not be tracked in the repository.
+
+To reproduce the reference primary feasible-set counts and distributional summaries from the original CSV:
+
+`python summarize_primary_feasible_scenarios.py --full-csv MVtarget_primary_all_simulation_results.csv --output-dir . --no-docx`
+
+Omit `--no-docx` to also generate Supplementary Table S4 (Word). The input CSV files remain unchanged; this script only summarizes existing simulations. It additionally writes a locally generated verification JSON file that need not be tracked.
 
 ## Scope and limitations
 
