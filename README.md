@@ -32,10 +32,10 @@ The comparison uses the original primary feasible dataset of 324 scenarios witho
 
 All numerically tied minima are retained to avoid arbitrary selection among equivalent solutions.
 
-The analysis is implemented in `compare_simple_indices_R1_5.py`, and the corresponding numerical results are provided in:
+The analysis is implemented in `compare_global_indices.py`, and the corresponding numerical results are provided in:
 
-- `R1_5_minimizer_summary.csv` — summary of minimum values, tied solutions, and associated energy metrics for each mechanical configuration.
-- `R1_5_all_minimizers.csv` — detailed results for all minimizing scenarios.
+- `global_indices_minimizer_summary.csv` — summary of minimum values, tied solutions, and associated energy metrics for each mechanical configuration.
+- `global_indices_all_minimizers.csv` — detailed results for all minimizing scenarios.
 
 The comparison evaluates differences between model-based selection criteria. It does not establish clinical superiority, predict lung injury, or validate the selected ventilator settings in patients.
 
@@ -57,9 +57,9 @@ The comparison evaluates differences between model-based selection criteria. It 
 
 **Supplementary comparison**
 
-- `compare_simple_indices_R1_5.py`
-- `R1_5_minimizer_summary.csv`
-- `R1_5_all_minimizers.csv`
+- `compare_global_indices.py`
+- `global_indices_minimizer_summary.csv`
+- `global_indices_all_minimizers.csv`
 
 **Documentation and dependencies**
 
@@ -81,7 +81,7 @@ To reproduce the original simulations:
 
 To reproduce the supplementary comparison using the existing primary feasible dataset:
 
-`python compare_simple_indices_R1_5.py --input-csv MVtarget_primary_feasible_simulation_results.csv --output-dir .`
+`python compare_global_indices.py --input-csv MVtarget_primary_feasible_simulation_results.csv --output-dir .`
 
 The supplementary script generates the comparison outputs without modifying the original simulation data.
 
