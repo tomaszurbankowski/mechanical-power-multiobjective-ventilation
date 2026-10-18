@@ -66,6 +66,25 @@ The analysis is implemented in `summarize_primary_feasible_scenarios.py`. The nu
 
 These summaries describe the predefined simulation grid rather than patient frequencies or sampling uncertainty. No new simulations were performed and no strategy selections were changed. The script also generates Supplementary Table S4 in Word format, which is not tracked in this repository.
 
+## Supplementary numerical-resolution analysis: Time step and parameter grid
+
+A separate numerical sensitivity analysis evaluates both inspiratory integration time-step resolution and the spacing of the prescribed ventilator settings in the **original linear inspiration-only, volume-reset model**. It is distinct from the passive-expiration sensitivity analysis.
+
+Three successive midpoint refinements (G1–G3) were compared with the original parameter grid (G0). All grids retained the original parameter ranges, three categorical flow waveforms, prescribed PEEP, and primary feasibility constraints. The respective grids contained 324, 2700, 34992, and 454308 feasible combinations. Comparisons across grids used a common 0.0005-s time step, whereas additional tests examined temporal-resolution sensitivity.
+
+The direction of the model-derived balanced-versus-minimum-MP trade-off persisted across the tested grids, but some selected respiratory rates and pause fractions changed. A separate lower-minute-ventilation-boundary check further demonstrated that the tested grids did not establish continuous global optima. These are numerical, within-model findings, not evidence of clinical superiority, convergence of Pareto-front membership, or robustness of the passive-expiration extension to grid refinement.
+
+The analysis is implemented in `assess_grid_time_sensitivity.py`. The numerical outputs are:
+
+- `numerical_grid_definition.csv` — grid levels, spacing, and full/feasible scenario counts.
+- `numerical_grid_summary.csv` — objective ranges and balanced-versus-minimum-MP changes for each grid and configuration.
+- `numerical_grid_selected_strategies.csv` — grid-specific and fixed-reference-normalization strategy selections.
+- `numerical_time_step_summary.csv` — maximum absolute and relative differences at matched settings and different time steps.
+- `numerical_time_step_selected_strategies.csv` — selected settings across the tested time steps.
+- `numerical_boundary_check.csv` — directly evaluated settings on the 6.5 L/min feasibility boundary.
+
+The script can also generate a verification JSON file and Supplementary Table S5 in Word format; these generated files are not tracked in the repository. The original model, primary data, and published numerical outputs are not overwritten.
+
 ## Repository contents
 
 **Main simulation code**
@@ -100,6 +119,16 @@ These summaries describe the predefined simulation grid rather than patient freq
 - `summarize_primary_feasible_scenarios.py`
 - `primary_feasible_setting_counts.csv`
 - `primary_feasible_metric_summary.csv`
+
+**Temporal and parameter-grid sensitivity analysis**
+
+- `assess_grid_time_sensitivity.py`
+- `numerical_grid_definition.csv`
+- `numerical_grid_summary.csv`
+- `numerical_grid_selected_strategies.csv`
+- `numerical_time_step_summary.csv`
+- `numerical_time_step_selected_strategies.csv`
+- `numerical_boundary_check.csv`
 
 **Documentation and dependencies**
 
@@ -136,6 +165,12 @@ To reproduce the reference primary feasible-set counts and distributional summar
 `python summarize_primary_feasible_scenarios.py --full-csv MVtarget_primary_all_simulation_results.csv --output-dir . --no-docx`
 
 Omit `--no-docx` to also generate Supplementary Table S4 (Word). The input CSV files remain unchanged; this script only summarizes existing simulations. It additionally writes a locally generated verification JSON file that need not be tracked.
+
+To reproduce the additional temporal and parameter-grid resolution analysis using the original model and primary feasible dataset:
+
+`python assess_grid_time_sensitivity.py --output-dir . --no-docx`
+
+Omit `--no-docx` to also generate Supplementary Table S5 (Word). The script additionally writes a local verification JSON file. The grid-resolution comparison includes up to 454308 feasible combinations and may require substantial computation time; the original model and input CSV are not modified. The tested grids do not certify continuous global optimality.
 
 ## Scope and limitations
 
