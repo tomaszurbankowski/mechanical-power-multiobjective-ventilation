@@ -8,7 +8,7 @@ This repository contains the Python code and generated numerical output files fo
 
 This project implements a deterministic in silico simulation framework for evaluating ventilation settings in mechanically heterogeneous lungs.
 
-The model uses a six-compartment parallel resistance–compliance structure with four predefined mechanical configurations. Ventilator settings are systematically varied under volume-controlled ventilation with PEEP fixed at 5 cmH₂O. Each simulated scenario is evaluated using global and regional energy-based metrics.
+The model uses a six-compartment parallel resistance–compliance structure with four predefined mechanical configurations. Ventilator settings are systematically varied under volume-controlled ventilation. In the reference simulations, prescribed PEEP is fixed at 5 cmH₂O. Each simulated scenario is evaluated using global and regional energy-based metrics. Additional within-model checks assess passive expiration, numerical resolution, and prescribed-PEEP pressure offsets.
 
 The main optimization objectives are:
 
@@ -85,6 +85,22 @@ The analysis is implemented in `assess_grid_time_sensitivity.py`. The numerical 
 
 The script can also generate a verification JSON file and Supplementary Table S5 in Word format; these generated files are not tracked in the repository. The original model, primary data, and published numerical outputs are not overwritten.
 
+## Supplementary check: Prescribed-PEEP pressure offsets and feasibility
+
+A separate analysis examines prescribed PEEP offsets of 5, 10, 15, and 20 cmH₂O in the **original linear inspiration-only, volume-reset model**. The original 324 primary setting combinations are re-evaluated at each PEEP (1296 scenario evaluations), keeping compartmental resistance and compliance, flow waveforms, the 0.002-s time step, relative initial volumes, and above-PEEP energy definitions unchanged. This check is distinct from the passive-expiration and refined-parameter-grid extensions.
+
+In this fixed-mechanics model, changing prescribed PEEP shifts absolute airway pressure but does not affect matched-setting airway pressure above PEEP, relative compartmental flows and volumes, or the modeled MP, REF, EII, and DCES. The peak-airway-pressure feasibility constraint of 35 cmH₂O is reapplied at each PEEP value, and minimum-MP and balanced strategies are reselected within each retained feasible subset with normalization recalculated. Feasible counts across all four mechanical configurations are 324, 324, 315, and 261 at PEEP 5, 10, 15, and 20 cmH₂O, respectively. The selected minimum-MP and balanced settings remain unchanged in this check.
+
+This **pressure-offset/feasibility check is not physiological PEEP optimization**. It does not model PEEP-dependent recruitment, closure, overdistension, changes in compartmental mechanics, or patient-specific absolute lung volumes. The tested PEEP values are illustrative offsets rather than clinical recommendations.
+
+The analysis is implemented in `assess_peep_offset_sensitivity.py`. Its numerical outputs are:
+
+- `peep_offset_scenarios.csv` — all 1296 matched scenario/PEEP evaluations, feasibility flags, and invariant-metric checks.
+- `peep_offset_summary.csv` — feasibility counts, pressure ranges, and objective normalization bounds for each configuration and PEEP value.
+- `peep_offset_selected_strategies.csv` — reselected minimum-MP and balanced settings for each configuration and PEEP value.
+
+The script can also generate a verification JSON file and Supplementary Table S6 in Word format; neither output is tracked in this repository. The original simulation model and CSV files remain unchanged.
+
 ## Repository contents
 
 **Main simulation code**
@@ -130,6 +146,13 @@ The script can also generate a verification JSON file and Supplementary Table S5
 - `numerical_time_step_selected_strategies.csv`
 - `numerical_boundary_check.csv`
 
+**Prescribed-PEEP offset and feasibility analysis**
+
+- `assess_peep_offset_sensitivity.py`
+- `peep_offset_scenarios.csv`
+- `peep_offset_summary.csv`
+- `peep_offset_selected_strategies.csv`
+
 **Documentation and dependencies**
 
 - `requirements.txt`
@@ -172,6 +195,12 @@ To reproduce the additional temporal and parameter-grid resolution analysis usin
 
 Omit `--no-docx` to also generate Supplementary Table S5 (Word). The script additionally writes a local verification JSON file. The grid-resolution comparison includes up to 454308 feasible combinations and may require substantial computation time; the original model and input CSV are not modified. The tested grids do not certify continuous global optimality.
 
+To reproduce the prescribed-PEEP pressure-offset and feasibility analysis using the original model and primary feasible CSV:
+
+`python assess_peep_offset_sensitivity.py --output-dir . --no-docx`
+
+Omit `--no-docx` to also generate Supplementary Table S6 (Word). The script re-evaluates the original primary settings at four illustrative PEEP values, writes a local verification JSON file, and does not modify the source model or reference CSV. Existing PEEP-offset output files in the specified output directory are replaced upon rerun. This is not physiological PEEP optimization.
+
 ## Scope and limitations
 
 The model is intended as a mechanistic, hypothesis-generating framework rather than a patient-specific simulator.
@@ -181,3 +210,5 @@ Regional energy fractions describe the relative distribution of positive compart
 The predefined mechanical configurations are not derived from individual patient data. Consequently, the reported optimization results should not be interpreted as validated clinical recommendations or evidence that a particular strategy reduces ventilator-induced lung injury.
 
 The additional passive-expiration extension remains linear and omits airway closure, expiratory flow limitation, direction-dependent resistance, and separate expiratory-circuit resistance. Its equivalent intrinsic-pressure descriptor is an analytical model quantity rather than a clinical measurement.
+
+The prescribed-PEEP check varies only a pressure offset within fixed compartmental mechanics. Its matched-setting invariance is a structural property of the equations, not evidence of physiological insensitivity to PEEP. It cannot identify a clinically optimal or protective PEEP setting.
