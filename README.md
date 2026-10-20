@@ -101,6 +101,26 @@ The analysis is implemented in `assess_peep_offset_sensitivity.py`. Its numerica
 
 The script can also generate a verification JSON file and Supplementary Table S6 in Word format; neither output is tracked in this repository. The original simulation model and CSV files remain unchanged.
 
+## Supplementary analysis: Compartmental energy, power, and energy accounting
+
+This analysis uses the **original linear inspiration-only, volume-reset model**, retaining the original 2,700 scenarios and the same primary (324) and broader-minute-ventilation (1,944) feasible sets. It does not change the model equations, reference energy metrics, balanced score, or previous analyses. It is separate from the passive-expiration, PEEP-offset, and refined-parameter-grid studies.
+
+The original compartmental quantity E_i is **positive-inflow work at a branch inlet per inspiration**, not net signed work or tissue dissipation. The corresponding compartmental positive-inflow power is MP_i(+) = RR × E_i (J/min). The analysis also reports the largest absolute compartmental energy per breath and largest compartmental power across branches, as distinct from DCES, which is a *normalized fraction*.
+
+The additional energy-accounting diagnostics separately report signed inlet work, outward-work magnitude, branch-resistive dissipation, and elastic-energy change relative to the prescribed-PEEP equilibrium. The finite-step Euler energy-balance term is identified separately as a numerical, not physiological, contribution. Lumped branch-resistive dissipation cannot be equated with experimentally validated tissue-level dissipation or injury risk.
+
+Converting all six compartmental energies to powers using the same RR within a given scenario leaves REF, EII, and DCES algebraically unchanged. However, **the original balanced selections increased maximum absolute compartmental positive-inflow power** compared with minimum global MP by **32.12%, 2.54%, 4.45%, and 5.36%**, respectively, in the compliance-dominant, resistance-dominant, mixed, and severe-mixed configurations of the primary set. The corresponding increases in the broader-MV set were 72.26%, 8.56%, 4.45%, and 10.58%. Thus, a decrease in inequality or dominant *share* is not proof of reduced maximum *absolute* regional work rate.
+
+The analysis is implemented in `assess_compartment_energy_power.py`. Its numerical outputs are:
+
+- `compartment_energy_power_scenarios.csv` — original settings and metrics, six positive-inflow powers, aggregate energy components, and feasibility flags for all 2,700 scenarios.
+- `compartment_energy_power_components.csv` — six branch-level energy/work components and rates for every scenario (16,200 rows).
+- `compartment_energy_power_selected_strategies.csv` — original minimum-MP and balanced settings, plus all tied minimum-maximum-energy and minimum-maximum-power solutions.
+- `compartment_energy_power_summary.csv` — configuration-level ranges and tie counts.
+- `compartment_energy_power_comparison.csv` — balanced-versus-minimum-MP comparisons in both feasible sets.
+
+The script can additionally generate a verification JSON and Supplementary Table S7 in Word format; these optional outputs are not tracked in this repository. It checks agreement with the original reference results and does not overwrite original model inputs.
+
 ## Repository contents
 
 **Main simulation code**
@@ -153,6 +173,15 @@ The script can also generate a verification JSON file and Supplementary Table S6
 - `peep_offset_summary.csv`
 - `peep_offset_selected_strategies.csv`
 
+**Compartmental energy and power analysis**
+
+- `assess_compartment_energy_power.py`
+- `compartment_energy_power_scenarios.csv`
+- `compartment_energy_power_components.csv`
+- `compartment_energy_power_selected_strategies.csv`
+- `compartment_energy_power_summary.csv`
+- `compartment_energy_power_comparison.csv`
+
 **Documentation and dependencies**
 
 - `requirements.txt`
@@ -201,6 +230,12 @@ To reproduce the prescribed-PEEP pressure-offset and feasibility analysis using 
 
 Omit `--no-docx` to also generate Supplementary Table S6 (Word). The script re-evaluates the original primary settings at four illustrative PEEP values, writes a local verification JSON file, and does not modify the source model or reference CSV. Existing PEEP-offset output files in the specified output directory are replaced upon rerun. This is not physiological PEEP optimization.
 
+To reproduce the supplementary compartmental work/power and energy-accounting analysis from the original 2,700-scenario CSV and model script:
+
+`python assess_compartment_energy_power.py --output-dir . --no-docx`
+
+Run this command in the repository root, where `MVtarget_primary_all_simulation_results.csv` and `multiobjective_ventilation_optimization_scaled_CR_MVtarget.py` are already present. The script reconstructs both feasible subsets and verifies the original model outputs without modifying those inputs. Omit `--no-docx` to also generate Supplementary Table S7 (Word). A verification JSON is also generated locally. Rerunning into the same output directory replaces this supplementary analysis's generated output files.
+
 ## Scope and limitations
 
 The model is intended as a mechanistic, hypothesis-generating framework rather than a patient-specific simulator.
@@ -212,3 +247,5 @@ The predefined mechanical configurations are not derived from individual patient
 The additional passive-expiration extension remains linear and omits airway closure, expiratory flow limitation, direction-dependent resistance, and separate expiratory-circuit resistance. Its equivalent intrinsic-pressure descriptor is an analytical model quantity rather than a clinical measurement.
 
 The prescribed-PEEP check varies only a pressure offset within fixed compartmental mechanics. Its matched-setting invariance is a structural property of the equations, not evidence of physiological insensitivity to PEEP. It cannot identify a clinically optimal or protective PEEP setting.
+
+The additional compartmental-power analysis distinguishes relative allocation from absolute work rate. Lower REF-based EII and DCES under balanced selection did **not** correspond to lower maximum absolute compartmental positive-inflow power. These model-derived rates and the separately reported branch-resistive dissipation are not validated measures of tissue injury.
