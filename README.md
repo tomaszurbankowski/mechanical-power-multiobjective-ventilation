@@ -16,7 +16,7 @@ The main optimization objectives are:
 - Energy Inequality Index (EII)
 - Dominant Compartment Energy Share (DCES)
 
-The analysis compares individual-objective minimization with balanced multi-objective selection and Pareto-front analysis.
+The principal comparisons concern individual-objective minimization and Pareto-front trade-offs. The original equal-weight balanced score is retained only as a secondary illustration of a specified preference rule, not a validated physiological criterion.
 
 The primary analysis includes 324 feasible scenarios within a minute-ventilation range of 6.5–7.5 L/min and a peak airway pressure limit of 35 cmH₂O. A sensitivity analysis examines a broader minute-ventilation range of 4.0–12.0 L/min.
 
@@ -121,6 +121,25 @@ The analysis is implemented in `assess_compartment_energy_power.py`. Its numeric
 
 The script can additionally generate a verification JSON and Supplementary Table S7 in Word format; these optional outputs are not tracked in this repository. It checks agreement with the original reference results and does not overwrite original model inputs.
 
+## Supplementary analysis: Objective dependence and weighting sensitivity
+
+This supplementary post hoc analysis examines how **objective composition and weighting** affect the original equal-weight ("balanced") selections. It processes the **reference inspiration-only** primary (324 scenarios) and broader-minute-ventilation (1,944 scenarios) feasible sets without rerunning model trajectories or modifying the original results or Pareto flags.
+
+The original scalar score combines normalized global MP, EII, and DCES. EII and DCES are related descriptions of the **same normalized positive-inflow work distribution**, not independent physiological measures. DCES is the **largest fractional share**, not maximum absolute compartmental energy. Maximum positive-inflow compartmental power is `MPmax(+) = DCES × RR × sum(E_i)`; the sum of compartmental positive-inflow powers need not equal global MP during internal redistribution.
+
+Using fixed normalization bounds within each configuration and feasible set, the analysis compares equal weights with controls omitting EII or DCES and with a half-global/half-regional weighting. It also evaluates **172 strictly positive weight triples** (171 grid points with weights in increments of 0.05 plus equal weights). A separate comparison asks whether the original balanced setting is dominated under the **alternative** objective vector (global MP, maximum positive-inflow compartmental power, EII). This does not recompute the original (MP, EII, DCES) Pareto fronts.
+
+In the primary severe-mixed configuration, omitting DCES changes the selected flow waveform/pause and yields a setting with lower global MP, maximum compartmental power, and EII, but slightly higher DCES. Selection also changes across the sampled positive weights. These are **weight- and objective-dependent model comparisons**, not a validation of any weighting scheme or a clinical recommendation. The original equal-weight selection remains a secondary illustrative choice.
+
+The analysis is implemented in `assess_objective_sensitivity.py`. Numerical outputs:
+
+- `objective_sensitivity_selected_strategies.csv` — named weighting controls and individual-objective minima, including numerical ties.
+- `objective_weight_selections.csv` — selected feasible settings across all 172 positive weight triples.
+- `objective_sensitivity_summary.csv` — configuration-level counts, ranges, normalization bounds, and dominance summaries.
+- `objective_dominance_comparison.csv` — detailed primary severe-mixed comparison under the alternative objectives.
+
+The script also creates a local verification JSON. Supplementary Table S8 can optionally be generated in Word format; neither the JSON nor Word file needs to be tracked in this GitHub repository. The analysis is not combined with passive expiration, PEEP-offset, or parameter-grid refinements.
+
 ## Repository contents
 
 **Main simulation code**
@@ -182,6 +201,14 @@ The script can additionally generate a verification JSON and Supplementary Table
 - `compartment_energy_power_summary.csv`
 - `compartment_energy_power_comparison.csv`
 
+**Objective dependence and weighting sensitivity**
+
+- `assess_objective_sensitivity.py`
+- `objective_sensitivity_selected_strategies.csv`
+- `objective_weight_selections.csv`
+- `objective_sensitivity_summary.csv`
+- `objective_dominance_comparison.csv`
+
 **Documentation and dependencies**
 
 - `requirements.txt`
@@ -236,6 +263,12 @@ To reproduce the supplementary compartmental work/power and energy-accounting an
 
 Run this command in the repository root, where `MVtarget_primary_all_simulation_results.csv` and `multiobjective_ventilation_optimization_scaled_CR_MVtarget.py` are already present. The script reconstructs both feasible subsets and verifies the original model outputs without modifying those inputs. Omit `--no-docx` to also generate Supplementary Table S7 (Word). A verification JSON is also generated locally. Rerunning into the same output directory replaces this supplementary analysis's generated output files.
 
+To reproduce the supplementary objective-dependence and weighting-sensitivity analysis from the original 2,700-scenario reference CSV:
+
+`python assess_objective_sensitivity.py --output-dir . --no-docx`
+
+Run this from the repository root next to `MVtarget_primary_all_simulation_results.csv`. The script recomputes feasible subsets, checks the original balanced selections against the original strategy-summary files when available, and exports four CSVs without altering source data. Omit `--no-docx` to generate Supplementary Table S8 (requires `python-docx`); a verification JSON is created locally in either case. Repeated runs replace only this analysis's generated outputs.
+
 ## Scope and limitations
 
 The model is intended as a mechanistic, hypothesis-generating framework rather than a patient-specific simulator.
@@ -249,3 +282,5 @@ The additional passive-expiration extension remains linear and omits airway clos
 The prescribed-PEEP check varies only a pressure offset within fixed compartmental mechanics. Its matched-setting invariance is a structural property of the equations, not evidence of physiological insensitivity to PEEP. It cannot identify a clinically optimal or protective PEEP setting.
 
 The additional compartmental-power analysis distinguishes relative allocation from absolute work rate. Lower REF-based EII and DCES under balanced selection did **not** correspond to lower maximum absolute compartmental positive-inflow power. These model-derived rates and the separately reported branch-resistive dissipation are not validated measures of tissue injury.
+
+The supplementary objective-weighting analysis demonstrates sensitivity to the chosen objective vector and normalized weights. It does not establish physiologically preferred weights, clinical decision value, or robust Pareto-front membership under alternative objectives.
