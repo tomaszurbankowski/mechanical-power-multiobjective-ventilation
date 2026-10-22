@@ -53,18 +53,21 @@ The analysis is implemented in `assess_expiration_sensitivity.py`. Its numerical
 - `expiration_selected_strategies.csv` — original and reselected minimum-MP and balanced strategies.
 - `expiration_summary.csv` — configuration-level summaries of the effects of finite expiration.
 
-## Descriptive characterization of the reference primary feasible set
+## Descriptive characterization of the reference feasible sets
 
-A separate descriptive analysis summarizes the original reference primary feasible dataset of 324 scenarios (81 per mechanical configuration). Unlike the passive-expiration extension, this analysis uses the original inspiration-only simulations with compartmental volumes reset before each breath.
+This descriptive post-processing analysis characterizes the original **primary feasible set** (324 scenarios; 81 per mechanical configuration) and the **broader-minute-ventilation feasible set** (1,944 scenarios; 486 per configuration). Both come from the original **inspiration-only, volume-reset model**; neither is the passive-expiration, PEEP-offset, or refined-parameter-grid extension. The analysis does not rerun simulations or change feasibility criteria, objectives, or selected settings.
 
-The analysis reports configuration counts, frequencies of retained ventilator settings (including the joint tidal-volume–respiratory-rate combinations), and the minimum, 25th percentile, median, 75th percentile, and maximum of MP, EII, and DCES within each configuration.
+For the primary set (MV constraint 6.5–7.5 L/min), parts A–C of Supplementary Table S4 report the counts per configuration, three joint retained tidal-volume–respiratory-rate pairs (VT 4 mL/kg with RR 25/min; VT 5 with RR 20/min; VT 7 with RR 15/min), all retained inspiratory-time, flow-waveform, and pause levels, and the minimum, 25th percentile, median, 75th percentile, and maximum of MP, EII, and DCES. Each VT–RR pair includes all 27 combinations of the three inspiratory times, three flow waveforms, and three pause fractions.
 
-The analysis is implemented in `summarize_primary_feasible_scenarios.py`. The numerical summaries are provided in:
+For the broader set (MV constraint 4.0–12.0 L/min), part D of S4 lists the 18 retained VT–RR pairs per configuration and the available levels of the other settings. Each pair again includes all 27 timing/waveform/pause combinations. The **actual retained MV range was 4.2–11.2 L/min**. After MV filtering, the Ppeak limit of 35 cmH₂O excluded no additional settings in either reference set. Within each reference set, the same ventilator-setting combinations were retained across all four mechanical configurations.
 
-- `primary_feasible_setting_counts.csv` — counts and frequencies of retained ventilation settings, with denominators and percentages.
-- `primary_feasible_metric_summary.csv` — distributional summaries of MP, EII, and DCES for each mechanical configuration.
+The analysis is implemented in `summarize_primary_feasible_scenarios.py`. Its numerical outputs are:
 
-These summaries describe the predefined simulation grid rather than patient frequencies or sampling uncertainty. No new simulations were performed and no strategy selections were changed. The script also generates Supplementary Table S4 in Word format, which is not tracked in this repository.
+- `primary_feasible_setting_counts.csv` — original primary-setting counts and frequencies, unchanged from the earlier release.
+- `primary_feasible_metric_summary.csv` — original primary-set distributional summaries of MP, EII, and DCES, unchanged from the earlier release.
+- `broader_feasible_setting_counts.csv` — new counts and frequencies of retained settings and joint VT–RR pairs for the broader feasible set.
+
+These counts characterize the prescribed simulation grid; they do not estimate clinical prevalence or sampling uncertainty. The script can optionally generate the extended Supplementary Table S4 in Word format and a verification JSON file, which are not tracked in this repository.
 
 ## Supplementary numerical-resolution analysis: Time step and parameter grid
 
@@ -169,11 +172,12 @@ The script also creates a local verification JSON. Supplementary Table S8 can op
 - `expiration_selected_strategies.csv`
 - `expiration_summary.csv`
 
-**Descriptive characterization of the primary feasible set**
+**Descriptive characterization of the reference feasible sets**
 
 - `summarize_primary_feasible_scenarios.py`
 - `primary_feasible_setting_counts.csv`
 - `primary_feasible_metric_summary.csv`
+- `broader_feasible_setting_counts.csv`
 
 **Temporal and parameter-grid sensitivity analysis**
 
@@ -239,11 +243,11 @@ To reproduce the passive-expiration sensitivity analysis using the existing prim
 
 This extension reads the original model and primary feasible CSV without overwriting them. It also generates a verification JSON file and the editable Supplementary Table S3 (Word); these additional files need not be tracked in the repository.
 
-To reproduce the reference primary feasible-set counts and distributional summaries from the original CSV:
+To reproduce the descriptive summaries and retained-setting counts for both reference feasible sets (including Supplementary Table S4 part D):
 
-`python summarize_primary_feasible_scenarios.py --full-csv MVtarget_primary_all_simulation_results.csv --output-dir . --no-docx`
+`python summarize_primary_feasible_scenarios.py --full-csv MVtarget_primary_all_simulation_results.csv --broader-csv MVtarget_sensitivity_feasible_simulation_results.csv --output-dir . --no-docx`
 
-Omit `--no-docx` to also generate Supplementary Table S4 (Word). The input CSV files remain unchanged; this script only summarizes existing simulations. It additionally writes a locally generated verification JSON file that need not be tracked.
+Run from the repository root next to both original feasible input CSV files. Omit `--no-docx` to also generate the extended Supplementary Table S4 (Word; requires `python-docx`). The script only summarizes existing reference simulations; it does not overwrite its source CSVs or modify the model. It additionally writes a local verification JSON that need not be tracked. Without the broader CSV, it produces only the original primary summaries (parts A–C).
 
 To reproduce the additional temporal and parameter-grid resolution analysis using the original model and primary feasible dataset:
 
