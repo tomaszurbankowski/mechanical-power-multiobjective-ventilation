@@ -1,0 +1,255 @@
+configuration,variable,level,n,denominator,percent
+all,configuration,compliance_dominant,486,1944,25.0
+all,configuration,resistance_dominant,486,1944,25.0
+all,configuration,mixed,486,1944,25.0
+all,configuration,severe_mixed,486,1944,25.0
+compliance_dominant,VT_ml_per_kg,4,108,486,22.22222222222222
+compliance_dominant,VT_ml_per_kg,5,108,486,22.22222222222222
+compliance_dominant,VT_ml_per_kg,6,108,486,22.22222222222222
+compliance_dominant,VT_ml_per_kg,7,81,486,16.666666666666668
+compliance_dominant,VT_ml_per_kg,8,81,486,16.666666666666668
+compliance_dominant,RR_min,10,81,486,16.666666666666668
+compliance_dominant,RR_min,15,135,486,27.77777777777778
+compliance_dominant,RR_min,20,135,486,27.77777777777778
+compliance_dominant,RR_min,25,81,486,16.666666666666668
+compliance_dominant,RR_min,30,54,486,11.11111111111111
+compliance_dominant,VT_RR_pair,4 mL/kg; 15 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,4 mL/kg; 20 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,4 mL/kg; 25 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,4 mL/kg; 30 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,5 mL/kg; 15 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,5 mL/kg; 20 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,5 mL/kg; 25 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,5 mL/kg; 30 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,6 mL/kg; 10 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,6 mL/kg; 15 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,6 mL/kg; 20 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,6 mL/kg; 25 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,7 mL/kg; 10 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,7 mL/kg; 15 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,7 mL/kg; 20 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,8 mL/kg; 10 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,8 mL/kg; 15 breaths/min,27,486,5.555555555555555
+compliance_dominant,VT_RR_pair,8 mL/kg; 20 breaths/min,27,486,5.555555555555555
+compliance_dominant,Ti_s,0.6,162,486,33.333333333333336
+compliance_dominant,Ti_s,1,162,486,33.333333333333336
+compliance_dominant,Ti_s,1.5,162,486,33.333333333333336
+compliance_dominant,waveform,decelerating,162,486,33.333333333333336
+compliance_dominant,waveform,sinusoidal,162,486,33.333333333333336
+compliance_dominant,waveform,square,162,486,33.333333333333336
+compliance_dominant,pause_fraction,0,162,486,33.333333333333336
+compliance_dominant,pause_fraction,0.1,162,486,33.333333333333336
+compliance_dominant,pause_fraction,0.2,162,486,33.333333333333336
+compliance_dominant,minute_ventilation_L_min,10.50,54,486,11.11111111111111
+compliance_dominant,minute_ventilation_L_min,11.20,27,486,5.555555555555555
+compliance_dominant,minute_ventilation_L_min,4.20,54,486,11.11111111111111
+compliance_dominant,minute_ventilation_L_min,4.90,27,486,5.555555555555555
+compliance_dominant,minute_ventilation_L_min,5.25,27,486,5.555555555555555
+compliance_dominant,minute_ventilation_L_min,5.60,54,486,11.11111111111111
+compliance_dominant,minute_ventilation_L_min,6.30,27,486,5.555555555555555
+compliance_dominant,minute_ventilation_L_min,7.00,54,486,11.11111111111111
+compliance_dominant,minute_ventilation_L_min,7.35,27,486,5.555555555555555
+compliance_dominant,minute_ventilation_L_min,8.40,81,486,16.666666666666668
+compliance_dominant,minute_ventilation_L_min,8.75,27,486,5.555555555555555
+compliance_dominant,minute_ventilation_L_min,9.80,27,486,5.555555555555555
+compliance_dominant,PEEP_cmH2O,5,486,486,100.0
+resistance_dominant,VT_ml_per_kg,4,108,486,22.22222222222222
+resistance_dominant,VT_ml_per_kg,5,108,486,22.22222222222222
+resistance_dominant,VT_ml_per_kg,6,108,486,22.22222222222222
+resistance_dominant,VT_ml_per_kg,7,81,486,16.666666666666668
+resistance_dominant,VT_ml_per_kg,8,81,486,16.666666666666668
+resistance_dominant,RR_min,10,81,486,16.666666666666668
+resistance_dominant,RR_min,15,135,486,27.77777777777778
+resistance_dominant,RR_min,20,135,486,27.77777777777778
+resistance_dominant,RR_min,25,81,486,16.666666666666668
+resistance_dominant,RR_min,30,54,486,11.11111111111111
+resistance_dominant,VT_RR_pair,4 mL/kg; 15 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,4 mL/kg; 20 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,4 mL/kg; 25 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,4 mL/kg; 30 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,5 mL/kg; 15 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,5 mL/kg; 20 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,5 mL/kg; 25 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,5 mL/kg; 30 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,6 mL/kg; 10 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,6 mL/kg; 15 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,6 mL/kg; 20 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,6 mL/kg; 25 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,7 mL/kg; 10 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,7 mL/kg; 15 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,7 mL/kg; 20 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,8 mL/kg; 10 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,8 mL/kg; 15 breaths/min,27,486,5.555555555555555
+resistance_dominant,VT_RR_pair,8 mL/kg; 20 breaths/min,27,486,5.555555555555555
+resistance_dominant,Ti_s,0.6,162,486,33.333333333333336
+resistance_dominant,Ti_s,1,162,486,33.333333333333336
+resistance_dominant,Ti_s,1.5,162,486,33.333333333333336
+resistance_dominant,waveform,decelerating,162,486,33.333333333333336
+resistance_dominant,waveform,sinusoidal,162,486,33.333333333333336
+resistance_dominant,waveform,square,162,486,33.333333333333336
+resistance_dominant,pause_fraction,0,162,486,33.333333333333336
+resistance_dominant,pause_fraction,0.1,162,486,33.333333333333336
+resistance_dominant,pause_fraction,0.2,162,486,33.333333333333336
+resistance_dominant,minute_ventilation_L_min,10.50,54,486,11.11111111111111
+resistance_dominant,minute_ventilation_L_min,11.20,27,486,5.555555555555555
+resistance_dominant,minute_ventilation_L_min,4.20,54,486,11.11111111111111
+resistance_dominant,minute_ventilation_L_min,4.90,27,486,5.555555555555555
+resistance_dominant,minute_ventilation_L_min,5.25,27,486,5.555555555555555
+resistance_dominant,minute_ventilation_L_min,5.60,54,486,11.11111111111111
+resistance_dominant,minute_ventilation_L_min,6.30,27,486,5.555555555555555
+resistance_dominant,minute_ventilation_L_min,7.00,54,486,11.11111111111111
+resistance_dominant,minute_ventilation_L_min,7.35,27,486,5.555555555555555
+resistance_dominant,minute_ventilation_L_min,8.40,81,486,16.666666666666668
+resistance_dominant,minute_ventilation_L_min,8.75,27,486,5.555555555555555
+resistance_dominant,minute_ventilation_L_min,9.80,27,486,5.555555555555555
+resistance_dominant,PEEP_cmH2O,5,486,486,100.0
+mixed,VT_ml_per_kg,4,108,486,22.22222222222222
+mixed,VT_ml_per_kg,5,108,486,22.22222222222222
+mixed,VT_ml_per_kg,6,108,486,22.22222222222222
+mixed,VT_ml_per_kg,7,81,486,16.666666666666668
+mixed,VT_ml_per_kg,8,81,486,16.666666666666668
+mixed,RR_min,10,81,486,16.666666666666668
+mixed,RR_min,15,135,486,27.77777777777778
+mixed,RR_min,20,135,486,27.77777777777778
+mixed,RR_min,25,81,486,16.666666666666668
+mixed,RR_min,30,54,486,11.11111111111111
+mixed,VT_RR_pair,4 mL/kg; 15 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,4 mL/kg; 20 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,4 mL/kg; 25 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,4 mL/kg; 30 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,5 mL/kg; 15 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,5 mL/kg; 20 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,5 mL/kg; 25 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,5 mL/kg; 30 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,6 mL/kg; 10 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,6 mL/kg; 15 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,6 mL/kg; 20 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,6 mL/kg; 25 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,7 mL/kg; 10 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,7 mL/kg; 15 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,7 mL/kg; 20 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,8 mL/kg; 10 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,8 mL/kg; 15 breaths/min,27,486,5.555555555555555
+mixed,VT_RR_pair,8 mL/kg; 20 breaths/min,27,486,5.555555555555555
+mixed,Ti_s,0.6,162,486,33.333333333333336
+mixed,Ti_s,1,162,486,33.333333333333336
+mixed,Ti_s,1.5,162,486,33.333333333333336
+mixed,waveform,decelerating,162,486,33.333333333333336
+mixed,waveform,sinusoidal,162,486,33.333333333333336
+mixed,waveform,square,162,486,33.333333333333336
+mixed,pause_fraction,0,162,486,33.333333333333336
+mixed,pause_fraction,0.1,162,486,33.333333333333336
+mixed,pause_fraction,0.2,162,486,33.333333333333336
+mixed,minute_ventilation_L_min,10.50,54,486,11.11111111111111
+mixed,minute_ventilation_L_min,11.20,27,486,5.555555555555555
+mixed,minute_ventilation_L_min,4.20,54,486,11.11111111111111
+mixed,minute_ventilation_L_min,4.90,27,486,5.555555555555555
+mixed,minute_ventilation_L_min,5.25,27,486,5.555555555555555
+mixed,minute_ventilation_L_min,5.60,54,486,11.11111111111111
+mixed,minute_ventilation_L_min,6.30,27,486,5.555555555555555
+mixed,minute_ventilation_L_min,7.00,54,486,11.11111111111111
+mixed,minute_ventilation_L_min,7.35,27,486,5.555555555555555
+mixed,minute_ventilation_L_min,8.40,81,486,16.666666666666668
+mixed,minute_ventilation_L_min,8.75,27,486,5.555555555555555
+mixed,minute_ventilation_L_min,9.80,27,486,5.555555555555555
+mixed,PEEP_cmH2O,5,486,486,100.0
+severe_mixed,VT_ml_per_kg,4,108,486,22.22222222222222
+severe_mixed,VT_ml_per_kg,5,108,486,22.22222222222222
+severe_mixed,VT_ml_per_kg,6,108,486,22.22222222222222
+severe_mixed,VT_ml_per_kg,7,81,486,16.666666666666668
+severe_mixed,VT_ml_per_kg,8,81,486,16.666666666666668
+severe_mixed,RR_min,10,81,486,16.666666666666668
+severe_mixed,RR_min,15,135,486,27.77777777777778
+severe_mixed,RR_min,20,135,486,27.77777777777778
+severe_mixed,RR_min,25,81,486,16.666666666666668
+severe_mixed,RR_min,30,54,486,11.11111111111111
+severe_mixed,VT_RR_pair,4 mL/kg; 15 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,4 mL/kg; 20 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,4 mL/kg; 25 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,4 mL/kg; 30 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,5 mL/kg; 15 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,5 mL/kg; 20 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,5 mL/kg; 25 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,5 mL/kg; 30 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,6 mL/kg; 10 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,6 mL/kg; 15 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,6 mL/kg; 20 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,6 mL/kg; 25 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,7 mL/kg; 10 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,7 mL/kg; 15 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,7 mL/kg; 20 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,8 mL/kg; 10 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,8 mL/kg; 15 breaths/min,27,486,5.555555555555555
+severe_mixed,VT_RR_pair,8 mL/kg; 20 breaths/min,27,486,5.555555555555555
+severe_mixed,Ti_s,0.6,162,486,33.333333333333336
+severe_mixed,Ti_s,1,162,486,33.333333333333336
+severe_mixed,Ti_s,1.5,162,486,33.333333333333336
+severe_mixed,waveform,decelerating,162,486,33.333333333333336
+severe_mixed,waveform,sinusoidal,162,486,33.333333333333336
+severe_mixed,waveform,square,162,486,33.333333333333336
+severe_mixed,pause_fraction,0,162,486,33.333333333333336
+severe_mixed,pause_fraction,0.1,162,486,33.333333333333336
+severe_mixed,pause_fraction,0.2,162,486,33.333333333333336
+severe_mixed,minute_ventilation_L_min,10.50,54,486,11.11111111111111
+severe_mixed,minute_ventilation_L_min,11.20,27,486,5.555555555555555
+severe_mixed,minute_ventilation_L_min,4.20,54,486,11.11111111111111
+severe_mixed,minute_ventilation_L_min,4.90,27,486,5.555555555555555
+severe_mixed,minute_ventilation_L_min,5.25,27,486,5.555555555555555
+severe_mixed,minute_ventilation_L_min,5.60,54,486,11.11111111111111
+severe_mixed,minute_ventilation_L_min,6.30,27,486,5.555555555555555
+severe_mixed,minute_ventilation_L_min,7.00,54,486,11.11111111111111
+severe_mixed,minute_ventilation_L_min,7.35,27,486,5.555555555555555
+severe_mixed,minute_ventilation_L_min,8.40,81,486,16.666666666666668
+severe_mixed,minute_ventilation_L_min,8.75,27,486,5.555555555555555
+severe_mixed,minute_ventilation_L_min,9.80,27,486,5.555555555555555
+severe_mixed,PEEP_cmH2O,5,486,486,100.0
+all,VT_ml_per_kg,4,432,1944,22.22222222222222
+all,VT_ml_per_kg,5,432,1944,22.22222222222222
+all,VT_ml_per_kg,6,432,1944,22.22222222222222
+all,VT_ml_per_kg,7,324,1944,16.666666666666668
+all,VT_ml_per_kg,8,324,1944,16.666666666666668
+all,RR_min,10,324,1944,16.666666666666668
+all,RR_min,15,540,1944,27.77777777777778
+all,RR_min,20,540,1944,27.77777777777778
+all,RR_min,25,324,1944,16.666666666666668
+all,RR_min,30,216,1944,11.11111111111111
+all,VT_RR_pair,4 mL/kg; 15 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,4 mL/kg; 20 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,4 mL/kg; 25 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,4 mL/kg; 30 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,5 mL/kg; 15 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,5 mL/kg; 20 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,5 mL/kg; 25 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,5 mL/kg; 30 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,6 mL/kg; 10 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,6 mL/kg; 15 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,6 mL/kg; 20 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,6 mL/kg; 25 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,7 mL/kg; 10 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,7 mL/kg; 15 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,7 mL/kg; 20 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,8 mL/kg; 10 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,8 mL/kg; 15 breaths/min,108,1944,5.555555555555555
+all,VT_RR_pair,8 mL/kg; 20 breaths/min,108,1944,5.555555555555555
+all,Ti_s,0.6,648,1944,33.333333333333336
+all,Ti_s,1,648,1944,33.333333333333336
+all,Ti_s,1.5,648,1944,33.333333333333336
+all,waveform,decelerating,648,1944,33.333333333333336
+all,waveform,sinusoidal,648,1944,33.333333333333336
+all,waveform,square,648,1944,33.333333333333336
+all,pause_fraction,0,648,1944,33.333333333333336
+all,pause_fraction,0.1,648,1944,33.333333333333336
+all,pause_fraction,0.2,648,1944,33.333333333333336
+all,minute_ventilation_L_min,10.50,216,1944,11.11111111111111
+all,minute_ventilation_L_min,11.20,108,1944,5.555555555555555
+all,minute_ventilation_L_min,4.20,216,1944,11.11111111111111
+all,minute_ventilation_L_min,4.90,108,1944,5.555555555555555
+all,minute_ventilation_L_min,5.25,108,1944,5.555555555555555
+all,minute_ventilation_L_min,5.60,216,1944,11.11111111111111
+all,minute_ventilation_L_min,6.30,108,1944,5.555555555555555
+all,minute_ventilation_L_min,7.00,216,1944,11.11111111111111
+all,minute_ventilation_L_min,7.35,108,1944,5.555555555555555
+all,minute_ventilation_L_min,8.40,324,1944,16.666666666666668
+all,minute_ventilation_L_min,8.75,108,1944,5.555555555555555
+all,minute_ventilation_L_min,9.80,108,1944,5.555555555555555
+all,PEEP_cmH2O,5,1944,1944,100.0

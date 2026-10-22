@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Describe the reference primary feasible set and reproduce Supplementary Table S4.
+"""Describe reference feasible settings and reproduce the extended Supplementary Table S4.
+
+Parts A-C retain the original primary characterization. Part D summarizes the
+broader minute-ventilation feasible set when its CSV is available. By default,
+MVtarget_sensitivity_feasible_simulation_results.csv is read beside the primary
+input. Use --broader-csv to provide its location explicitly. This extension does
+not recalculate simulations or change existing primary numerical summaries.
 
 This is descriptive post-processing, not a new simulation or optimization.
 The input is the original inspiration-only, volume-reset primary CSV (324 rows),
@@ -131,6 +137,57 @@ def verify_full_dataset(primary: list[dict[str, Any]], path: Path) -> dict[str, 
             "full_csv_sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
+def validate_broader(rows: list[dict[str, Any]]) -> None:
+    """Check the original broader-MV grid, units, reference volumes and filters."""
+    expected_pairs = {(vt, rr) for vt, rr in itertools.product(
+        (4., 5., 6., 7., 8.), (10., 15., 20., 25., 30.))
+        if 4.0 <= vt * 70.0 * rr / 1000.0 <= 12.0}
+    expected = {(p, vt, rr, ti, wave, pause, 5.0)
+        for p in ORDER for vt, rr in expected_pairs
+        for ti, wave, pause in itertools.product((0.6, 1.0, 1.5), FLOW_ORDER, (0., .1, .2))}
+    observed = [scenario_key(r) for r in rows]
+    if (len(rows) != 1944 or len(set(observed)) != len(rows)
+            or set(observed) != expected
+            or Counter(r['phenotype'] for r in rows) != Counter(dict.fromkeys(ORDER, 486))):
+        raise ValueError('Expected the original broader-MV set: 1944 scenarios, 486 per configuration.')
+    for r in rows:
+        if not np.isclose(r['PBW_kg'], 70., rtol=0, atol=FLOAT_ATOL):
+            raise ValueError('Expected PBW 70 kg in broader set.')
+        if not np.isclose(r['VT_ml'], r['VT_ml_per_kg'] * 70., rtol=0, atol=FLOAT_ATOL):
+            raise ValueError('Inconsistent broader-set tidal volume.')
+        mv = r['VT_ml'] * r['RR_min'] / 1000.
+        if not np.isclose(r['minute_ventilation_L_min'], mv, rtol=0, atol=FLOAT_ATOL):
+            raise ValueError('Inconsistent broader-set minute ventilation.')
+        if not (4.0 <= mv <= 12.0 and r['Ppeak_cmH2O'] <= 35.0):
+            raise ValueError('Broader-set scenario fails the feasibility criteria.')
+        if not np.isclose(r['end_inspiratory_volume_L'], r['VT_ml']/1000., rtol=0, atol=FLOAT_ATOL):
+            raise ValueError('Expected volume-reset reference output, not the passive-expiration extension.')
+        if 'analysis_name' in r and r['analysis_name'] != 'sensitivity_MV_4_to_12_L_min':
+            raise ValueError('Unexpected broader-set analysis label.')
+
+
+def verify_broader_full(rows: list[dict[str, Any]], full_path: Path) -> dict[str, Any]:
+    full = read_csv(full_path)
+    if len(full) != 2700:
+        raise ValueError('Expected the 2700-row full reference dataset.')
+    selected = [r for r in full if r['Ppeak_cmH2O'] <= 35.0
+                and 4.0 <= r['minute_ventilation_L_min'] <= 12.0]
+    lookup = {scenario_key(r): r for r in selected}
+    if len(selected) != 1944 or set(lookup) != {scenario_key(r) for r in rows}:
+        raise ValueError('Broader-set membership differs from full-grid filtering.')
+    largest = 0.0
+    for r in rows:
+        for metric in NUMERIC:
+            delta = abs(r[metric] - lookup[scenario_key(r)][metric])
+            largest = max(largest, delta)
+            if not np.isclose(r[metric], lookup[scenario_key(r)][metric], rtol=1e-12, atol=1e-12):
+                raise ValueError(f'Broader-set reference mismatch: {metric}')
+    return {'matched_broader_rows': len(rows), 'maximum_absolute_metric_difference': largest,
+            'pressure_exclusions_after_MV_filter': sum(
+                r['Ppeak_cmH2O'] > 35.0 for r in full
+                if 4.0 <= r['minute_ventilation_L_min'] <= 12.0)}
+
+
 def summaries(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     metric_rows: list[dict[str, Any]] = []
     count_rows: list[dict[str, Any]] = []
@@ -179,8 +236,9 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
-def export_docx(rows: list[dict[str, Any]], metrics: list[dict[str, Any]], output: Path) -> Path:
-    """Build the two-page, monochrome, editable supplementary table."""
+def export_docx(rows: list[dict[str, Any]], metrics: list[dict[str, Any]], output: Path,
+                broader: list[dict[str, Any]] | None = None) -> Path:
+    """Build the editable primary summary with an optional broader-set third page."""
     from docx import Document
     from docx.enum.section import WD_ORIENT
     from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
@@ -263,14 +321,22 @@ def export_docx(rows: list[dict[str, Any]], metrics: list[dict[str, Any]], outpu
         t._tbl.tblPr.append(borders)
         return t
 
-    para("Supplementary Table S4. Characterization of the reference primary feasible scenarios.", bold=True, size=12)
-    para("All summaries below use the original inspiration-only, volume-reset dataset (324 scenarios). "
-         "Outputs of the separate passive-expiration sensitivity analysis are not included.", size=9.5)
+    title = ("Supplementary Table S4. Characterization of the reference feasible simulation sets."
+             if broader is not None else
+             "Supplementary Table S4. Characterization of the reference primary feasible scenarios.")
+    para(title, bold=True, size=12)
+    intro = ("Parts A-C characterize the primary set (324 scenarios); part D summarizes retained settings "
+             "in the broader minute-ventilation set (1944 scenarios). Both use the original inspiration-only, "
+             "volume-reset simulations at PEEP 5 cmH₂O. Separate passive-expiration, grid-refinement, "
+             "and PEEP-offset outputs are not included." if broader is not None else
+             "All summaries below use the original inspiration-only, volume-reset dataset (324 scenarios). "
+             "Outputs of the separate passive-expiration sensitivity analysis are not included.")
+    para(intro, size=9.5)
     doc.add_paragraph("A. Scenario distribution across mechanical configurations", style="Heading 2")
     table(["Configuration", "Feasible scenarios (n)", "Share of the primary set (%)"],
           [[LABELS[p], str(sum(r["phenotype"] == p for r in rows)), "25.0"] for p in ORDER] +
           [["Total", str(len(rows)), "100.0"]], [10.6, 8.1, 8.1])
-    doc.add_paragraph("B. Retained ventilator settings and their frequencies", style="Heading 2")
+    doc.add_paragraph("B. Retained ventilator settings and their frequencies: primary analysis", style="Heading 2")
     para("The same setting combinations were retained in all four configurations. Tidal volume and "
          "respiratory rate are shown jointly because their retained values are not freely interchangeable.", size=9.5)
     pair_cells = []
@@ -296,7 +362,7 @@ def export_docx(rows: list[dict[str, Any]], metrics: list[dict[str, Any]], outpu
 
     doc.add_page_break()
     para("Supplementary Table S4 (continued).", bold=True, size=12)
-    doc.add_paragraph("C. Distributions of global and regional energy metrics", style="Heading 2")
+    doc.add_paragraph("C. Distributions of global and regional energy metrics: primary analysis", style="Heading 2")
     para("Each distribution includes all 81 reference primary feasible scenarios in the stated configuration, "
          "rather than only the minimum-MP, balanced, or Pareto-selected solutions.", size=9.5)
     matrix = []
@@ -330,6 +396,49 @@ def export_docx(rows: list[dict[str, Any]], metrics: list[dict[str, Any]], outpu
     para("Numerical source: MVtarget_primary_feasible_simulation_results.csv. Descriptive summaries were "
          "generated without changing the model equations, scenario inclusion, optimization, or existing results.", size=9.2)
 
+    if broader is not None:
+        doc.add_page_break()
+        para("Supplementary Table S4 (continued).", bold=True, size=12)
+        doc.add_paragraph("D. Retained settings in the broader minute-ventilation analysis", style="Heading 2")
+        para("Applied criteria: minute ventilation 4.0-12.0 L/min and peak airway-opening pressure "
+             "≤35 cmH₂O. The same 486 setting combinations were retained in each of the four "
+             "configurations (1944 scenarios in total). The actual retained minute-ventilation range "
+             "was 4.20-11.20 L/min.", size=9.5)
+        table(["Configuration", "Feasible scenarios (n)", "Share of the broader set (%)"],
+              [[LABELS[p], str(sum(r["phenotype"] == p for r in broader)), "25.0"] for p in ORDER] +
+              [["Total", str(len(broader)), "100.0"]], [10.6, 8.1, 8.1])
+        para("Retained VT-RR combinations are grouped by tidal volume. Each listed respiratory rate "
+             "pairs only with the tidal volume in its row; the MV values follow the same order.", size=9.5)
+        base = [r for r in broader if r['phenotype'] == ORDER[0]]
+        pair_cells = []
+        for vt in sorted({r['VT_ml_per_kg'] for r in base}):
+            matched = [r for r in base if r['VT_ml_per_kg'] == vt]
+            rates = sorted({r['RR_min'] for r in matched})
+            pair_cells.append([f"{vt:g}", f"{vt*70:g}", "; ".join(f"{rr:g}" for rr in rates),
+                "; ".join(f"{vt*70*rr/1000:.2f}" for rr in rates),
+                str(len(matched)), str(4*len(matched))])
+        table(["VT (mL/kg PBW)", "VT (mL)", "Retained RR (breaths/min)", "Corresponding MV (L/min)",
+               "n per configuration", "n across all configurations"], pair_cells,
+              [3.4, 2.4, 5.4, 6.9, 4.3, 4.4], size=9.2)
+        para("The 18 retained VT-RR pairs each covered all 27 combinations of inspiratory time, flow "
+             "waveform, and pause fraction, giving 18 × 27 = 486 scenarios per configuration.", size=9.5)
+        table(["Parameter", "Retained levels", "n per level, per configuration", "n per level, entire broader set"],
+              [["Inspiratory time (s)", "0.6; 1.0; 1.5", "162", "648"],
+               ["Flow waveform", "Square; linearly decelerating; sinusoidal", "162", "648"],
+               ["End-inspiratory pause fraction", "0.0; 0.1; 0.2", "162", "648"]],
+              [6.0, 9.3, 5.75, 5.75])
+        para("The last table gives marginal counts for each individual parameter level, not additional "
+             "scenarios. PBW remained 70 kg and prescribed PEEP remained 5 cmH₂O. The peak-pressure "
+             "limit removed no additional scenarios after minute-ventilation filtering; observed peak "
+             "airway pressure across the retained broader set ranged from 11.23 to 30.12 cmH₂O.", size=9.2)
+        para("All four configurations share the listed retained setting combinations, although their "
+             "pressures and energy metrics differ. Counts describe the predefined simulation grid, "
+             "not clinical frequencies. These rows supplement, rather than replace, the primary-set "
+             "summaries in parts A-C.", size=9.2)
+        para("Numerical source: MVtarget_sensitivity_feasible_simulation_results.csv. "
+             "The extension summarizes existing outputs; no model equations, feasibility thresholds, "
+             "scenario inclusion, or strategy selections were changed.", size=9.2)
+
     footer = sec.footer.paragraphs[0]
     footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     r = footer.add_run("Supplementary Table S4 | ")
@@ -337,7 +446,8 @@ def export_docx(rows: list[dict[str, Any]], metrics: list[dict[str, Any]], outpu
     field = OxmlElement("w:fldSimple")
     field.set(qn("w:instr"), "PAGE")
     footer._p.append(field)
-    doc.core_properties.title = "Supplementary Table S4: Reference primary feasible scenarios"
+    doc.core_properties.title = ("Supplementary Table S4: Reference feasible simulation sets" if broader is not None
+                                 else "Supplementary Table S4: Reference primary feasible scenarios")
     doc.core_properties.author = "Tomasz Urbankowski"
     path = output / "Supplementary_Table_S4_primary_feasible_scenarios.docx"
     doc.save(path)
@@ -348,6 +458,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--input-csv", type=Path, default=Path("MVtarget_primary_feasible_simulation_results.csv"))
     parser.add_argument("--full-csv", type=Path, help="Optional original full-grid CSV for independent membership verification.")
+    parser.add_argument("--broader-csv", type=Path,
+                        help="Broader-MV feasible CSV; default: look beside the primary input.")
     parser.add_argument("--output-dir", type=Path, default=Path("."))
     parser.add_argument("--no-docx", action="store_true", help="Write numerical summaries only.")
     args = parser.parse_args()
@@ -361,33 +473,65 @@ def main() -> None:
         rows = read_csv(source)
         validate_primary(rows)
         full_check = verify_full_dataset(rows, args.full_csv.resolve()) if args.full_csv else None
+        broader_source = (args.broader_csv.resolve() if args.broader_csv else
+                          source.with_name("MVtarget_sensitivity_feasible_simulation_results.csv"))
+        broader = None
+        broader_check = None
+        broader_digest = None
+        if broader_source.is_file():
+            broader_digest = hashlib.sha256(broader_source.read_bytes()).hexdigest()
+            broader = read_csv(broader_source)
+            validate_broader(broader)
+            if args.full_csv:
+                broader_check = verify_broader_full(broader, args.full_csv.resolve())
+        elif args.broader_csv:
+            raise FileNotFoundError(f"Broader-MV CSV not found: {broader_source}")
+        else:
+            print("NOTE: No broader-MV CSV found; only the original parts A-C will be generated.", file=sys.stderr)
         metrics, counts = summaries(rows)
         paths = [out / "primary_feasible_metric_summary.csv", out / "primary_feasible_setting_counts.csv"]
         if source in paths:
             raise ValueError("Input and output paths must differ.")
         write_csv(paths[0], metrics)
         write_csv(paths[1], counts)
+        if broader is not None:
+            _, broader_counts = summaries(broader)
+            broader_output = out / "broader_feasible_setting_counts.csv"
+            if broader_output in (source, broader_source):
+                raise ValueError("Input and output paths must differ.")
+            write_csv(broader_output, broader_counts)
+            paths.append(broader_output)
         if not args.no_docx:
             try:
-                paths.append(export_docx(rows, metrics, out))
+                paths.append(export_docx(rows, metrics, out, broader))
             except ImportError as exc:
                 raise RuntimeError("Install python-docx or use --no-docx; numerical CSV summaries have been saved.") from exc
         if hashlib.sha256(source.read_bytes()).hexdigest() != digest:
             raise RuntimeError("Input file unexpectedly changed.")
+        if broader_digest is not None and hashlib.sha256(broader_source.read_bytes()).hexdigest() != broader_digest:
+            raise RuntimeError("Broader-MV input file unexpectedly changed.")
         verification = {
-            "analysis": "reference_primary_descriptive_characterization", "input_csv": source.name,
+            "analysis": "reference_feasible_set_descriptive_characterization", "input_csv": source.name,
             "input_sha256": digest, "n": len(rows),
             "n_per_configuration": {p: sum(r["phenotype"] == p for r in rows) for p in ORDER},
             "quantile_method": "linear", "raw_values_used_for_percentiles": True,
             "original_input_unchanged": True, "simulations_rerun": False,
             "periodic_expiration_outputs_included": False, "inferential_tests_performed": False,
-            "full_grid_cross_check": full_check, "postprocessing_python": sys.version.split()[0],
+            "full_grid_cross_check": full_check,
+            "broader_set_included": broader is not None,
+            "broader_input_csv": broader_source.name if broader is not None else None,
+            "broader_input_sha256": broader_digest,
+            "broader_n": len(broader) if broader is not None else None,
+            "broader_full_grid_cross_check": broader_check,
+            "postprocessing_python": sys.version.split()[0],
             "postprocessing_numpy": np.__version__,
         }
         check_path = out / "primary_feasible_summary_verification.json"
         check_path.write_text(json.dumps(verification, indent=2), encoding="utf-8")
         paths.append(check_path)
         print("Reference primary set verified: 324 scenarios, 81 per configuration.")
+        if broader is not None:
+            print("Reference broader-MV set verified: 1944 scenarios, 486 per configuration; part D included.")
         for m in metrics:
             print(m["configuration"], m["metric"], m["median"], m["p25"], m["p75"])
         for path in paths:
