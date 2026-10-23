@@ -20,6 +20,32 @@ The principal comparisons concern individual-objective minimization and Pareto-f
 
 The primary analysis includes 324 feasible scenarios within a minute-ventilation range of 6.5–7.5 L/min and a peak airway pressure limit of 35 cmH₂O. A sensitivity analysis examines a broader minute-ventilation range of 4.0–12.0 L/min.
 
+## Numerical comparison and tied-minimum handling
+
+Reference Pareto classification uses unrounded values of global MP, EII, and DCES with relative tolerance `1e-10` and absolute tolerance `1e-12`. For each target value `b`, the tolerance is `1e-12 + 1e-10 * abs(b)`. A candidate dominates a target only if it is no worse within tolerance on all objectives and better beyond tolerance on at least one. Every target is compared with the complete feasible set within the same mechanical configuration.
+
+The corrected reference fronts contain **20 scenarios in each analysis set**: 7 compliance-dominant, 4 resistance-dominant, 4 mixed, and 5 severe mixed. Earlier strict floating-point comparisons counted 24 and 26, respectively, because round-off differences in normalized descriptors could protect higher-power settings from domination. The underlying scenario values, feasibility membership, and original minimum-MP and equal-weight balanced settings are unchanged.
+
+All numerical ties at the minimum of each original selection objective are retained in `MVtarget_primary_all_minimizers.csv` and `MVtarget_sensitivity_all_minimizers.csv`. The compact `*_strategy_summary.csv` files continue to contain one row per strategy and configuration. For this compact representation only, a non-dominated tied candidate with the lowest global MP is selected; any further numerical ties are resolved by EII, DCES, and the ventilator-setting tuple. The `representative` flag in the full tie files identifies that row. This is a reporting convention, not evidence that a dimensionless regional objective independently favors a particular tidal volume or respiratory rate.
+
+Each regional single-objective minimum has 3 tied settings per configuration in the primary set and 18 in the broader-MV set. The lowest-MP representatives use VT 4 mL/kg and RR 25/min (primary) or 15/min (broader MV). All tied candidates are retained, including those dominated when the other objectives are also considered. `reference_selection_summary.csv` reports feasible counts, front sizes, and tie counts.
+
+The `pareto_optimal` fields carried into `expiration_primary_scenarios.csv` and `expiration_selected_strategies.csv` refer to the **reference inspiration-only** objective vector; they do not label periodic-state Pareto membership. They are synchronized with the corrected reference set without changing the periodic outputs or selected settings.
+
+To refresh selection metadata and tie sets from the stored feasible CSVs without rerunning the model dynamics:
+
+```bash
+python refresh_reference_selection.py --input-dir . --output-dir selection_corrected
+```
+
+For an intentional in-place refresh of derived CSV files, use `--output-dir .`. The all-scenario input file is not modified. Run the regression tests using:
+
+```bash
+python test_selection_precision.py
+```
+
+The comparison tolerances address floating-point precision, not uncertainty in physiological parameters, temporal convergence, or clinical equivalence. This numerical correction does not extend the original ventilator-setting grid.
+
 ## Supplementary analysis: Comparison with simpler global indices
 
 An additional within-model analysis compares the original optimization strategies with simpler global indices:
@@ -148,16 +174,21 @@ The script also creates a local verification JSON. Supplementary Table S8 can op
 **Main simulation code**
 
 - `multiobjective_ventilation_optimization_scaled_CR_MVtarget.py`
+- `refresh_reference_selection.py` — refresh numerical selection metadata and all tied minima from stored results.
+- `test_selection_precision.py` — regression tests for tolerance handling and representative selection.
 
 **Main simulation outputs**
 
 - `MVtarget_primary_all_simulation_results.csv`
 - `MVtarget_primary_feasible_simulation_results.csv`
 - `MVtarget_primary_strategy_summary.csv`
+- `MVtarget_primary_all_minimizers.csv`
 - `MVtarget_sensitivity_feasible_simulation_results.csv`
 - `MVtarget_sensitivity_strategy_summary.csv`
+- `MVtarget_sensitivity_all_minimizers.csv`
 - `MVtarget_mechanics_summary.csv`
 - `MVtarget_minMP_vs_balanced_comparison.csv`
+- `reference_selection_summary.csv`
 
 **Supplementary comparison**
 
