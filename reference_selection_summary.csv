@@ -1,0 +1,9 @@
+analysis_set,phenotype,n_feasible,n_pareto,minimum_MP_n_tied_minima,minimum_EII_n_tied_minima,minimum_DCES_n_tied_minima,balanced_n_tied_minima
+primary,compliance_dominant,81,7,1,3,3,1
+primary,resistance_dominant,81,4,1,3,3,1
+primary,mixed,81,4,1,3,3,1
+primary,severe_mixed,81,5,1,3,3,1
+sensitivity,compliance_dominant,486,7,1,18,18,1
+sensitivity,resistance_dominant,486,4,1,18,18,1
+sensitivity,mixed,486,4,1,18,18,1
+sensitivity,severe_mixed,486,5,1,18,18,1

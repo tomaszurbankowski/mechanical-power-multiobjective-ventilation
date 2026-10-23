@@ -20,13 +20,19 @@ Primary analysis:
 - MVtarget_primary_all_simulation_results.csv
 - MVtarget_primary_feasible_simulation_results.csv
 - MVtarget_primary_strategy_summary.csv
+- MVtarget_primary_all_minimizers.csv (all numerical ties)
 
 Sensitivity analysis:
 - MVtarget_sensitivity_feasible_simulation_results.csv
 - MVtarget_sensitivity_strategy_summary.csv
+- MVtarget_sensitivity_all_minimizers.csv (all numerical ties)
 
 Mechanics:
 - MVtarget_mechanics_summary.csv
+
+Numerical comparisons use rtol=1e-10 and atol=1e-12.
+Strategy summaries report one non-dominated, lowest-MP representative from each
+numerically tied minimum set. Separate files retain all tied candidates.
 
 Run:
     python multiobjective_ventilation_optimization_scaled_CR_MVtarget.py
@@ -40,6 +46,10 @@ import pandas as pd
 CMH2O_L_TO_J = 0.0980665
 COMPLIANCE_SCALE = 1.0 / 6.0
 RESISTANCE_SCALE = 6.0
+
+# Floating-point comparison only; not a physiological equivalence threshold.
+SELECTION_RTOL = 1e-10
+SELECTION_ATOL = 1e-12
 
 
 # ---------------------------------------------------------------------
@@ -223,33 +233,41 @@ def add_normalized_columns(df, columns, group_col="phenotype"):
     return df
 
 
-def pareto_minimize(points):
-    """
-    Boolean Pareto mask. All objectives are minimized.
+def pareto_minimize(points, rtol=SELECTION_RTOL, atol=SELECTION_ATOL):
+    """Tolerance-aware non-dominated mask for minimization of every objective.
+
+    Candidate a dominates target b when, for every objective j,
+      a[j] <= b[j] + (atol + rtol * abs(b[j])),
+    and, for at least one objective j,
+      a[j] < b[j] - (atol + rtol * abs(b[j])).
+
+    All targets are compared against ALL supplied candidates; there is no
+    order-dependent pruning. Raw, unrounded values are retained. A tolerance
+    comparison is a numerical convention, not a claim of clinical equivalence.
     """
     points = np.asarray(points, dtype=float)
-    n = points.shape[0]
-    is_pareto = np.ones(n, dtype=bool)
-
-    for i in range(n):
-        if not is_pareto[i]:
-            continue
-
-        dominated = np.all(points <= points[i], axis=1) & np.any(points < points[i], axis=1)
-        if np.any(dominated):
-            is_pareto[i] = False
-
+    if points.ndim != 2 or points.shape[1] == 0:
+        raise ValueError("points must be a two-dimensional array of objectives")
+    if not np.isfinite(points).all():
+        raise ValueError("Pareto objectives must be finite")
+    if not np.isfinite([rtol, atol]).all() or rtol < 0 or atol < 0:
+        raise ValueError("rtol and atol must be finite and non-negative")
+    is_pareto = np.ones(len(points), dtype=bool)
+    for i, target in enumerate(points):
+        tolerance = atol + rtol * np.abs(target)
+        no_worse = np.all(points <= target + tolerance, axis=1)
+        strictly_better = np.any(points < target - tolerance, axis=1)
+        is_pareto[i] = not np.any(no_worse & strictly_better)
     return is_pareto
 
 
-def add_pareto_flags(df, objective_cols=("MP_J_min", "EII", "DCES")):
+def add_pareto_flags(df, objective_cols=("MP_J_min", "EII", "DCES"),
+                     rtol=SELECTION_RTOL, atol=SELECTION_ATOL):
     df = df.copy()
     df["pareto_optimal"] = False
-
     for phenotype, sub in df.groupby("phenotype"):
-        mask = pareto_minimize(sub[list(objective_cols)].to_numpy())
+        mask = pareto_minimize(sub[list(objective_cols)].to_numpy(), rtol, atol)
         df.loc[sub.index, "pareto_optimal"] = mask
-
     return df
 
 
@@ -286,23 +304,61 @@ def prepare_analysis_subset(df, analysis_name, mv_min, mv_max):
     return subset, strategy_summary
 
 
-def summarize_strategies(df):
-    rows = []
+def strategy_minimizers(df, rtol=SELECTION_RTOL, atol=SELECTION_ATOL):
+    """Keep all numerical ties and mark one reproducible representative.
 
+    Tie sets are defined relative to the observed minimum of the selected
+    objective. For the compact summary only, choose among non-dominated tied
+    candidates, preferring the lowest global MP. Further numerical ties are
+    narrowed by EII and DCES, then lexicographically by the setting tuple.
+    This does NOT turn MP into part of the regional single-objective criterion:
+    every tied regional minimizer remains present in the exported tie set.
+    """
+    if not df.index.is_unique:
+        raise ValueError("Strategy input must have a unique row index")
+    objective_map = {
+        "minimum_MP": "MP_J_min", "minimum_EII": "EII",
+        "minimum_DCES": "DCES", "balanced": "balanced_score",
+    }
+    settings = ["VT_ml_per_kg", "RR_min", "Ti_s", "waveform", "pause_fraction"]
+    outputs = []
     for phenotype, sub in df.groupby("phenotype"):
-        strategy_rows = {
-            "minimum_MP": sub.loc[sub["MP_J_min"].idxmin()],
-            "minimum_EII": sub.loc[sub["EII"].idxmin()],
-            "minimum_DCES": sub.loc[sub["DCES"].idxmin()],
-            "balanced": sub.loc[sub["balanced_score"].idxmin()],
-        }
+        mask = pareto_minimize(sub[["MP_J_min", "EII", "DCES"]].to_numpy(), rtol, atol)
+        sub = sub.copy()
+        sub["pareto_optimal"] = mask
+        for strategy, objective in objective_map.items():
+            values = sub[objective].to_numpy(dtype=float)
+            if not np.isfinite(values).all():
+                raise ValueError(f"Non-finite objective: {phenotype}/{objective}")
+            minimum = float(values.min())
+            tied = sub.loc[np.isclose(values, minimum, rtol=rtol, atol=atol)].copy()
+            eligible = tied.loc[tied["pareto_optimal"]].copy()
+            if eligible.empty:
+                raise ValueError(f"No non-dominated tied representative: {phenotype}/{strategy}")
+            for metric in ("MP_J_min", "EII", "DCES"):
+                reference = float(eligible[metric].min())
+                eligible = eligible.loc[np.isclose(eligible[metric], reference,
+                                                  rtol=rtol, atol=atol)]
+            eligible = eligible.sort_values(settings, kind="stable")
+            selected_index = eligible.index[0]
+            tied["strategy"] = strategy
+            tied["minimized_objective"] = objective
+            tied["objective_minimum"] = minimum
+            tied["n_tied_minima"] = len(tied)
+            tied["representative"] = tied.index == selected_index
+            outputs.append(tied.sort_values(settings, kind="stable"))
+    if not outputs:
+        return pd.DataFrame()
+    return pd.concat(outputs, ignore_index=True)
 
-        for strategy, row in strategy_rows.items():
-            out = row.to_dict()
-            out["strategy"] = strategy
-            rows.append(out)
 
-    return pd.DataFrame(rows)
+def summarize_strategies(df):
+    """One non-dominated representative per strategy (backward-compatible columns)."""
+    all_minima = strategy_minimizers(df)
+    columns = list(df.columns) + ["strategy"]
+    if all_minima.empty:
+        return pd.DataFrame(columns=columns)
+    return all_minima.loc[all_minima["representative"], columns].reset_index(drop=True)
 
 
 # ---------------------------------------------------------------------
@@ -419,9 +475,11 @@ def run_parameter_sweep(
     all_results.to_csv("MVtarget_primary_all_simulation_results.csv", index=False)
     primary_subset.to_csv("MVtarget_primary_feasible_simulation_results.csv", index=False)
     primary_strategy_summary.to_csv("MVtarget_primary_strategy_summary.csv", index=False)
+    strategy_minimizers(primary_subset).to_csv("MVtarget_primary_all_minimizers.csv", index=False)
 
     sensitivity_subset.to_csv("MVtarget_sensitivity_feasible_simulation_results.csv", index=False)
     sensitivity_strategy_summary.to_csv("MVtarget_sensitivity_strategy_summary.csv", index=False)
+    strategy_minimizers(sensitivity_subset).to_csv("MVtarget_sensitivity_all_minimizers.csv", index=False)
 
     mechanics_summary.to_csv("MVtarget_mechanics_summary.csv", index=False)
     comparison_summary.to_csv("MVtarget_minMP_vs_balanced_comparison.csv", index=False)
